@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -16,24 +17,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined'));
 
-// Welcome route
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Welcome route - serve HTML
 app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Welcome to Ntando Mods API',
-    version: '1.0.0',
-    endpoints: {
-      youtube: {
-        mp3: '/api/youtube/mp3?url=VIDEO_URL',
-        mp4: '/api/youtube/mp4?url=VIDEO_URL',
-        search: '/api/youtube/search?q=QUERY'
-      },
-      gpt: {
-        chat: '/api/gpt/chat (POST with body: {message: "your message"})'
-      }
-    },
-    documentation: '/api/docs'
-  });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // API Routes
