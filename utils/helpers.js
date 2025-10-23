@@ -1,16 +1,97 @@
-// Format duration from seconds to readable format
-exports.formatDuration = (seconds) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`;
+/**
+ * Handle errors and send appropriate response
+ */
+exports.handleError = (res, error, message = 'An error occurred') => {
+  console.error('Error:', error.message);
+  
+  const statusCode = error.response?.status || 500;
+  const errorMessage = error.response?.data?.message || error.message || message;
+  
+  res.status(statusCode).json({
+    success: false,
+    message: errorMessage,
+    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+  });
 };
 
-// Validate URL
+/**
+ * Validate required parameters
+ */
+exports.validateRequiredParams = (params, requiredFields) => {
+  const missingFields = requiredFields.filter(field => !params[field]);
+  
+  if (missingFields.length > 0) {
+    return {
+      valid: false,
+      message: `Missing required parameters: ${missingFields.join(', ')}`
+    };
+  }
+  
+  return { valid: true };
+};
+
+/**
+ * Format response data
+ */
+exports.formatResponse = (success, data, message = null) => {
+  const response = { success };
+  
+  if (message) response.message = message;
+  if (data) response.data = data;
+  
+  return response;
+};
+
+/**
+ * Paginate array
+ */
+exports.paginate = (array, page = 1, limit = 10) => {
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  
+  return {
+    data: array.slice(startIndex, endIndex),
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total: array.length,
+      totalPages: Math.ceil(array.length / limit)
+    }
+  };
+};
+
+/**
+ * Clean and sanitize text
+ */
+exports.sanitizeText = (text) => {
+  return text
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<[^>]*>?/gm, '')
+    .trim();
+};
+
+/**
+ * Generate random string
+ */
+exports.generateRandomString = (length = 10) => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+
+/**
+ * Delay/sleep function
+ */
+exports.sleep = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+/**
+ * Check if URL is valid
+ */
 exports.isValidUrl = (string) => {
   try {
     new URL(string);
@@ -20,22 +101,17 @@ exports.isValidUrl = (string) => {
   }
 };
 
-// Generate random ID
-exports.generateId = () => {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15);
-};
-
-// Format file size
-exports.formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-};
-
-// Sanitize filename
-exports.sanitizeFilename = (filename) => {
-  return filename.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+/**
+ * Format date
+ */
+exports.formatDate = (date, format = 'YYYY-MM-DD') => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  
+  return format
+    .replace('YYYY', year)
+    .replace('MM', month)
+    .replace('DD', day);
 };
