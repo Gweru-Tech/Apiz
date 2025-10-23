@@ -1,166 +1,146 @@
-const ytdl = require('ytdl-core');
-const youtubeSearch = require('youtube-search-api');
+const axios = require('axios');
+const { handleError, validateRequiredParams } = require('../utils/helper');
 
-// Download YouTube video as MP3
-exports.downloadMP3 = async (req, res, next) => {
+const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
+
+exports.searchVideos = async (req, res) => {
   try {
-    const { url } = req.query;
-
-    if (!url) {
+    const { query, maxResults = 10, order = 'relevance' } = req.query;
+    
+    const validation = validateRequiredParams({ query }, ['query']);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'URL parameter is required'
+        message: validation.message
       });
     }
 
-    if (!ytdl.validateURL(url)) {
-      return res.status(400).json({
+    if (!process.env.YOUTUBE_API_KEY) {
+      return res.status(500).json({
         success: false,
-        message: 'Invalid YouTube URL'
+        message: 'YouTube API key not configured'
       });
     }
 
-    const info = await ytdl.getInfo(url);
-    const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-
-    if (audioFormats.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'No audio formats available'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        title: info.videoDetails.title,
-        author: info.videoDetails.author.name,
-        duration: info.videoDetails.lengthSeconds,
-        thumbnail: info.videoDetails.thumbnails[0].url,
-        downloadUrl: audioFormats[0].url,
-        format: 'mp3',
-        quality: audioFormats[0].audioBitrate + 'kbps'
+    const response = await axios.get(`${YOUTUBE_API_BASE}/search`, {
+      params: {
+        part: 'snippet',
+        q: query,
+        maxResults,
+        order,
+        type: 'video',
+        key: process.env.YOUTUBE_API_KEY
       }
     });
 
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Download YouTube video as MP4
-exports.downloadMP4 = async (req, res, next) => {
-  try {
-    const { url, quality = 'highest' } = req.query;
-
-    if (!url) {
-      return res.status(400).json({
-        success: false,
-        message: 'URL parameter is required'
-      });
-    }
-
-    if (!ytdl.validateURL(url)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid YouTube URL'
-      });
-    }
-
-    const info = await ytdl.getInfo(url);
-    const format = ytdl.chooseFormat(info.formats, { quality });
-
-    res.json({
-      success: true,
-      data: {
-        title: info.videoDetails.title,
-        author: info.videoDetails.author.name,
-        duration: info.videoDetails.lengthSeconds,
-        thumbnail: info.videoDetails.thumbnails[0].url,
-        downloadUrl: format.url,
-        format: 'mp4',
-        quality: format.qualityLabel,
-        resolution: format.width + 'x' + format.height
-      }
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Search YouTube
-exports.searchYouTube = async (req, res, next) => {
-  try {
-    const { q, limit = 10 } = req.query;
-
-    if (!q) {
-      return res.status(400).json({
-        success: false,
-        message: 'Query parameter (q) is required'
-      });
-    }
-
-    const results = await youtubeSearch.GetListByKeyword(q, false, parseInt(limit));
-
-    const formattedResults = results.items.map(item => ({
-      id: item.id,
-      title: item.title,
-      channel: item.channelTitle,
-      duration: item.length?.simpleText || 'N/A',
-      views: item.viewCount || 'N/A',
-      thumbnail: item.thumbnail?.thumbnails[0]?.url,
-      url: `https://www.youtube.com/watch?v=${item.id}`
+    const videos = response.data.items.map(item => ({
+      id: item.id.videoId,
+      title: item.snippet.title,
+      description: item.snippet.description,
+      thumbnail: item.snippet.thumbnails.high.url,
+      channel: item.snippet.channelTitle,
+      publishedAt: item.snippet.publishedAt,
+      url: `https://www.youtube.com/watch?v=${item.id.videoId}`
     }));
 
     res.json({
       success: true,
-      count: formattedResults.length,
-      data: formattedResults
+      data: {
+        total: response.data.pageInfo.totalResults,
+        videos
+      }
     });
-
   } catch (error) {
-    next(error);
+    if (error.response?.status === 403) {
+      return res.status(403).json({
+        success: false,
+        message: 'YouTube API quota exceeded or invalid API key'
+      });
+    }
+    handleError(res, error, 'YouTube search failed');
   }
 };
 
-// Get video info
-exports.getVideoInfo = async (req, res, next) => {
+exports.getVideoDetails = async (req, res) => {
   try {
-    const { url } = req.query;
-
-    if (!url) {
+    const { id } = req.params;
+    
+    const validation = validateRequiredParams({ id }, ['id']);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'URL parameter is required'
+        message: validation.message
       });
     }
 
-    if (!ytdl.validateURL(url)) {
-      return res.status(400).json({
+    if (!process.env.YOUTUBE_API_KEY) {
+      return res.status(500).json({
         success: false,
-        message: 'Invalid YouTube URL'
+        message: 'YouTube API key not configured'
       });
     }
 
-    const info = await ytdl.getInfo(url);
-
-    res.json({
-      success: true,
-      data: {
-        title: info.videoDetails.title,
-        description: info.videoDetails.description,
-        author: info.videoDetails.author.name,
-        duration: info.videoDetails.lengthSeconds,
-        views: info.videoDetails.viewCount,
-        likes: info.videoDetails.likes,
-        thumbnail: info.videoDetails.thumbnails[info.videoDetails.thumbnails.length - 1].url,
-        uploadDate: info.videoDetails.uploadDate,
-        category: info.videoDetails.category
+    const response = await axios.get(`${YOUTUBE_API_BASE}/videos`, {
+      params: {
+        part: 'snippet,contentDetails,statistics',
+        id,
+        key: process.env.YOUTUBE_API_KEY
       }
     });
 
+    if (response.data.items.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Video not found'
+      });
+    }
+
+    const video = response.data.items[0];
+    
+    res.json({
+      success: true,
+      data: {
+        id: video.id,
+        title: video.snippet.title,
+        description: video.snippet.description,
+        channel: video.snippet.channelTitle,
+        thumbnail: video.snippet.thumbnails.high.url,
+        publishedAt: video.snippet.publishedAt,
+        duration: video.contentDetails.duration,
+        viewCount: video.statistics.viewCount,
+        likeCount: video.statistics.likeCount,
+        commentCount: video.statistics.commentCount,
+        url: `https://www.youtube.com/watch?v=${video.id}`
+      }
+    });
   } catch (error) {
-    next(error);
+    handleError(res, error, 'Failed to get video details');
+  }
+};
+
+exports.downloadVideo = async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    const validation = validateRequiredParams({ url }, ['url']);
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: validation.message
+      });
+    }
+
+    // Note: For actual video download, you would need ytdl-core or similar
+    // This is a placeholder response
+    res.json({
+      success: true,
+      message: 'Video download endpoint',
+      data: {
+        url,
+        note: 'Please use a dedicated YouTube downloader service for actual downloads'
+      }
+    });
+  } catch (error) {
+    handleError(res, error, 'Video download failed');
   }
 };
