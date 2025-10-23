@@ -15,11 +15,11 @@ app.set('trust proxy', 1);
 
 // Security Middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Allow inline scripts for the demo page
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
 
-// CORS Configuration - allow all origins for public API
+// CORS Configuration
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -31,7 +31,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logging middleware - only in development
+// Logging middleware
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 } else {
@@ -41,7 +41,7 @@ if (process.env.NODE_ENV !== 'production') {
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Health check endpoint (important for Render.com)
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -80,7 +80,7 @@ app.get('/api', (req, res) => {
 // API Routes
 app.use('/api', routes);
 
-// 404 handler - must be before error handler
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -90,38 +90,16 @@ app.use((req, res) => {
   });
 });
 
-// Error handling middleware - must be last
+// Error handling middleware
 app.use(errorHandler);
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
+// Only listen if not in serverless environment (Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Ntando Mods API running on port ${PORT}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 Health check: http://localhost:${PORT}/health`);
   });
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-  });
-});
-
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Ntando Mods API running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Health check: http://localhost:${PORT}/health`);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Promise Rejection:', err);
-  // Don't exit in production
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
-  }
-});
+}
 
 module.exports = app;
