@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | Hookrest API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        .error-code {
+            font-size: 8em;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            opacity: 0.8;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .error-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .error-description {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #e74c3c;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn.secondary:hover {
+            background: white;
+            color: #e74c3c;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+
+        .error-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .retry-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .retry-btn {
+            background: #27ae60;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .retry-btn:hover {
+            background: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        .status-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .countdown {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="error-icon">⚠️</div>
+        <div class="error-code">500</div>
+        <h1 class="error-title">Server Error</h1>
+        <p class="error-description">
+            Something went wrong on our end! Our servers encountered an unexpected error 
+            while processing your request. We're working to fix this issue.
+        </p>
+        
+        <div>
+            <a href="/" class="btn">🏠 Back to Home</a>
+            <a href="/api/docs" class="btn secondary">📚 API Documentation</a>
+        </div>
+
+        <div class="retry-section">
+            <h3>Quick Actions</h3>
+            <button class="retry-btn" onclick="refreshPage()">🔄 Refresh Page</button>
+            <button class="retry-btn" onclick="checkHealth()">🏥 Check Server Health</button>
+            <button class="retry-btn" onclick="retryRequest()">🔄 Retry Request</button>
+            
+            <div class="status-info">
+                <p>Auto-refresh in <span class="countdown" id="countdown">10</span> seconds...</p>
+                <p id="status-message">Checking server status...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let countdown = 10;
+        let countdownInterval;
+
+        function updateCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                refreshPage();
+            }
+        }
+
+        function refreshPage() {
+            window.location.reload();
+        }
+
+        function checkHealth() {
+            fetch('/health')
+                .then(response => response.json())
+                .then(data => {
+                    const statusMessage = document.getElementById('status-message');
+                    if (data.status === 'healthy') {
+                        statusMessage.textContent = '✅ Server is healthy! You can refresh the page.';
+                        statusMessage.style.color = '#2ecc71';
+                    } else {
+                        statusMessage.textContent = '⚠️ Server still having issues. Please try again later.';
+                        statusMessage.style.color = '#f39c12';
+                    }
+                })
+                .catch(error => {
+                    const statusMessage = document.getElementById('status-message');
+                    statusMessage.textContent = '❌ Cannot reach server. Try refreshing manually.';
+                    statusMessage.style.color = '#e74c3c';
+                });
+        }
+
+        function retryRequest() {
+            // Go back to previous page and refresh
+            if (window.history.length > 1) {
+                window.history.back();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 100);
+            } else {
+                refreshPage();
+            }
+        }
+
+        // Start countdown
+        countdownInterval = setInterval(updateCountdown, 1000);
+
+        // Check server health on load
+        setTimeout(checkHealth, 1000);
+
+        // Log error for debugging (in a real app, this would send to a monitoring service)
+        console.error('500 Server Error occurred', {
+            url: window.location.href,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+        });
+    </script>
+</body>
+</html>
