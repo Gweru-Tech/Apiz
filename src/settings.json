@@ -1,0 +1,20 @@
+{
+  "maintenance": {
+    "enabled": false,
+    "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZmM3ZqNG9qczY0cG5qN2Y5N3Bpc2ZjMzZ6M2JkNmRyNHJtN3M3byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKtnrHO0U4Jsr2c/giphy.gif"
+  },
+  "apiSettings": {
+    "creator": "Hookrest API",
+    "version": "1.0.0",
+    "rateLimit": {
+      "enabled": true,
+      "maxRequests": 100,
+      "windowMs": 900000
+    }
+  },
+  "features": {
+    "enableDocs": true,
+    "enableHealthCheck": true,
+    "enableCORS": true
+  }
+}
