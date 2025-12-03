@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: hookrest-api
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: hookrest-api-disk
+      mountPath: /workspace
+      sizeGB: 1

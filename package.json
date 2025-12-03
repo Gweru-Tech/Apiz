@@ -1,40 +1,35 @@
 {
-  "name": "ntando-mods-api",
+  "name": "Hookrest-Api",
   "version": "1.0.0",
-  "description": "Ntando Mods API - A comprehensive REST API with multiple endpoints",
-  "main": "server.js",
+  "description": "A simple and customizable API documentation interface built with Express.js.",
+  "main": "index.js",
+  "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "vercel-build": "echo 'Building for Vercel' && npm install",
-    "build": "echo 'No build step required'",
-    "test": "echo \"No tests specified\" && exit 0"
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "node test.js"
+  },
+  "author": "Hookrest-Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
+    "chalk": "^4.1.2",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "file-type": "^18.7.0",
+    "node-fetch": "^2.7.0",
+    "qrcode": "^1.5.3",
+    "yt-search": "^2.12.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   },
   "keywords": [
     "api",
-    "rest",
     "express",
-    "nodejs",
-    "gpt",
-    "youtube",
-    "weather",
-    "translation"
-  ],
-  "author": "Ntando Mods",
-  "license": "MIT",
-  "engines": {
-    "node": "22.x"
-  },
-  "dependencies": {
-    "axios": "^1.6.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
-    "helmet": "^7.1.0",
-    "morgan": "^1.10.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  }
+    "rest-api",
+    "nodejs"
+  ]
 }
