@@ -66,34 +66,41 @@ app.use((req, res, next) => {
     next();
 });
 
-// API Route Loader
+// FIXED API Route Loader
 let totalRoutes = 0;
 const apiFolder = path.join(__dirname, './src/api');
 
 try {
     if (fs.existsSync(apiFolder)) {
-        fs.readdirSync(apiFolder).forEach((subfolder) => {
-            const subfolderPath = path.join(apiFolder, subfolder);
-            if (fs.statSync(subfolderPath).isDirectory()) {
-                fs.readdirSync(subfolderPath).forEach((file) => {
-                    const filePath = path.join(subfolderPath, file);
-                    if (path.extname(file) === '.js') {
+        const files = fs.readdirSync(apiFolder);
+        
+        files.forEach((file) => {
+            const filePath = path.join(apiFolder, file);
+            const stat = fs.statSync(filePath);
+            
+            // Handle subdirectories
+            if (stat.isDirectory()) {
+                const subFiles = fs.readdirSync(filePath);
+                subFiles.forEach((subFile) => {
+                    if (path.extname(subFile) === '.js') {
                         try {
-                            require(filePath)(app);
+                            require(path.join(filePath, subFile))(app);
                             totalRoutes++;
-                            console.log(chalk.bgHex('#FFFF99').hex('#333').bold(` Loaded Route: ${subfolder}/${path.basename(file)} `));
+                            console.log(chalk.bgHex('#FFFF99').hex('#333').bold(` Loaded Route: ${file}/${subFile} `));
                         } catch (error) {
-                            console.error(chalk.red(`Error loading route ${subfolder}/${file}:`, error.message));
+                            console.error(chalk.red(`Error loading route ${file}/${subFile}:`, error.message));
                         }
                     }
                 });
-            } else if (path.extname(subfolder) === '.js') {
+            } 
+            // Handle direct .js files in api folder
+            else if (path.extname(file) === '.js') {
                 try {
-                    require(subfolderPath)(app);
+                    require(filePath)(app);
                     totalRoutes++;
-                    console.log(chalk.bgHex('#FFFF99').hex('#333').bold(` Loaded Route: ${path.basename(subfolder)} `));
+                    console.log(chalk.bgHex('#FFFF99').hex('#333').bold(` Loaded Route: ${file} `));
                 } catch (error) {
-                    console.error(chalk.red(`Error loading route ${subfolder}:`, error.message));
+                    console.error(chalk.red(`Error loading route ${file}:`, error.message));
                 }
             }
         });
