@@ -1,11 +1,21 @@
 {
-  "maintenance": {
-    "enabled": false,
-    "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZmM3ZqNG9qczY0cG5qN2Y5N3Bpc2ZjMzZ6M2JkNmRyNHJtN3M3byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKtnrHO0U4Jsr2c/giphy.gif"
+  "name": "Ladybug Mods Api's",
+  "version": "v2",
+  "description": "Simple rest api by Ntando Mods.",
+  "header": {
+    "status": "Online!",
+    "imageSrc": [
+      "https://files.catbox.moe/rw141a.jpeg"
+    ],
+    "imageSize": {
+      "mobile": "50%",
+      "tablet": "40%",
+      "desktop": "40%"
+    }
   },
   "apiSettings": {
-    "creator": "Hookrest API",
-    "version": "1.0.0",
+    "creator": "Ntando Mods",
+    "version": "v2",
     "rateLimit": {
       "enabled": true,
       "maxRequests": 100,
@@ -16,5 +26,156 @@
     "enableDocs": true,
     "enableHealthCheck": true,
     "enableCORS": true
+  },
+  "links": [
+    {
+      "name": "Source Code",
+      "url": "https://whatsapp.com/channel/0029VbB89FX9sBIFviBQ5J15"
+    },
+    {
+      "name": "Contact Me",
+      "url": "https://wa.me/263777124998"
+    }
+  ],
+  "categories": [
+    {
+      "name": "AI (Artificial Intelligence)",
+      "items": [
+        {
+          "name": "AI Chat",
+          "desc": "Talk with AI assistant",
+          "path": "/api/ai?question="
+        }
+      ]
+    },
+    {
+      "name": "Anime",
+      "items": [
+        {
+          "name": "Anime Search",
+          "desc": "Search for anime information",
+          "path": "/api/anime?query="
+        }
+      ]
+    },
+    {
+      "name": "APK",
+      "items": [
+        {
+          "name": "APK Search",
+          "desc": "Search and download APK files",
+          "path": "/api/apk?query="
+        }
+      ]
+    },
+    {
+      "name": "Tools",
+      "items": [
+        {
+          "name": "Background Remove",
+          "desc": "Remove background from images",
+          "path": "/api/background-remove?imageUrl="
+        },
+        {
+          "name": "Image Generator",
+          "desc": "Generate images from text",
+          "path": "/api/image?prompt="
+        },
+        {
+          "name": "QR Code Generator",
+          "desc": "Generate QR codes",
+          "path": "/api/qrcode?text="
+        },
+        {
+          "name": "URL Shortener",
+          "desc": "Shorten long URLs",
+          "path": "/api/urlshortener?url="
+        },
+        {
+          "name": "Tools",
+          "desc": "Various utility tools",
+          "path": "/api/tools"
+        }
+      ]
+    },
+    {
+      "name": "Religious",
+      "items": [
+        {
+          "name": "Bible",
+          "desc": "Bible verses and search",
+          "path": "/api/bible?query="
+        }
+      ]
+    },
+    {
+      "name": "Random",
+      "items": [
+        {
+          "name": "NSFW",
+          "desc": "NSFW content (18+)",
+          "path": "/api/nsf"
+        }
+      ]
+    },
+    {
+      "name": "Search Tools",
+      "items": [
+        {
+          "name": "YouTube Search",
+          "desc": "Search YouTube videos",
+          "path": "/api/ytsearch?q="
+        },
+        {
+          "name": "Lyrics",
+          "desc": "Search song lyrics",
+          "path": "/api/lyrics?title="
+        }
+      ]
+    },
+    {
+      "name": "Downloader",
+      "items": [
+        {
+          "name": "TikTok",
+          "desc": "Download TikTok videos",
+          "path": "/api/tiktok?url="
+        },
+        {
+          "name": "YouTube",
+          "desc": "Download YouTube videos",
+          "path": "/api/youtube?url="
+        }
+      ]
+    },
+    {
+      "name": "Info",
+      "items": [
+        {
+          "name": "Weather",
+          "desc": "Get weather information",
+          "path": "/api/weather?city="
+        },
+        {
+          "name": "Weather Enhanced",
+          "desc": "Get detailed weather information",
+          "path": "/api/weather-enhanced?city="
+        }
+      ]
+    },
+    {
+      "name": "Status",
+      "items": [
+        {
+          "name": "Test Endpoint",
+          "desc": "Test API functionality",
+          "path": "/api/test"
+        }
+      ]
+    }
+  ],
+  "maintenance": {
+    "enabled": false,
+    "gifUrl": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZmM3ZqNG9qczY0cG5qN2Y5N3Bpc2ZjMzZ6M2JkNmRyNHJtN3M3byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKtnrHO0U4Jsr2c/giphy.gif"
   }
 }
